@@ -1,14 +1,359 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
+    <title>일기 분석 결과 - Plot!Me</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .close-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: none;
+            font-size: 18px;
+            color: #000000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .card-grade-section {
+            background-color: #F3F0FF;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grade-info {
+            flex: 1;
+        }
+
+        .grade-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #8B5CF6;
+            margin-bottom: 8px;
+        }
+
+        .grade-description {
+            font-size: 14px;
+            color: #A78BFA;
+            line-height: 1.4;
+        }
+
+        .grade-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #8B5CF6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .summary-section {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .summary-date {
+            font-size: 14px;
+            color: #000000;
+            margin-bottom: 16px;
+        }
+
+        .summary-content {
+            font-size: 14px;
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        .emotion-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .emotion-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .emotion-cards {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding-bottom: 8px;
+        }
+
+        .emotion-cards::-webkit-scrollbar {
+            display: none;
+        }
+
+        .emotion-card {
+            min-width: 200px;
+            height: 160px;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .emotion-card:nth-child(1) {
+            background-color: #FFFDD0;
+        }
+
+        .emotion-card:nth-child(2) {
+            background-color: #F5E6D3;
+        }
+
+        .emotion-card:nth-child(3) {
+            background-color: #E8F5E8;
+        }
+
+        .emotion-card:nth-child(4) {
+            background-color: #F0E6FF;
+        }
+
+        .emotion-card:nth-child(5) {
+            background-color: #FFE6F0;
+        }
+
+        .emotion-date {
+            font-size: 12px;
+            color: #666666;
+        }
+
+        .emotion-emoji {
+            font-size: 32px;
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        .emotion-quote {
+            font-size: 14px;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+            font-style: italic;
+        }
+        .exit-btn {
+            text-decoration: none;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+            
+            .container {
+                max-width: 100%;
+                gap: 16px;
+            }
+            
+            .card-grade-section {
+                padding: 16px;
+            }
+            
+            .summary-section {
+                padding: 16px;
+            }
+            
+            .emotion-card {
+                min-width: 180px;
+                height: 140px;
+            }
+            
+        }
+    </style>
 </head>
 <body>
-    <form action="/result" method="post">
-        <input type="text" name="content" placeholder="내용을 입력하세요...">
-        <button type="submit">제출</button>
-    </form>
+    <div class="container">
+        <div class="header">
+            <h1 class="header-title">일기 분석 결과</h1>
+            <a href="card.html" class="exit-btn">X</a>
+        </div>
+
+        <div class="card-grade-section">
+            <div class="grade-info">
+                <div class="grade-title">오늘의 카드 등급</div>
+                <div class="grade-description">앞으로 한 번의 카드를 더 모으면 다음 등급으로 올라가요!</div>
+            </div>
+            <div class="grade-circle">C</div>
+        </div>
+
+        <div class="summary-section">
+            <div class="summary-title">사연 요약</div>
+            <div class="summary-date">2025.10.25 (토)</div>
+            <div class="summary-content">
+                처음엔 걱정됐는데 막상 하니까 재밌었다.<br>
+                피드백을 받고 색도 다시 찾아 보면서 더 좋아졌고,<br>
+                이런 경험을 통해 완벽하진 않아도<br>
+                내가 성장하고 있다고 느꼈다.
+            </div>
+        </div>
+
+        <div class="emotion-section">
+            <div class="emotion-title">오늘의 감정 카드</div>
+            <div class="emotion-cards">
+                <div class="emotion-card">
+                    <div class="emotion-date">2025.10.27(월)</div>
+                    <div class="emotion-emoji">😬</div>
+                    <div class="emotion-quote">"완벽하진 않지만"</div>
+                </div>
+                <div class="emotion-card">
+                    <div class="emotion-date">2025.10.26(일)</div>
+                    <div class="emotion-emoji">😊</div>
+                    <div class="emotion-quote">"오늘도 화이팅!"</div>
+                </div>
+                <div class="emotion-card">
+                    <div class="emotion-date">2025.10.25(토)</div>
+                    <div class="emotion-emoji">🤔</div>
+                    <div class="emotion-quote">"생각이 많아지는 날"</div>
+                </div>
+                <div class="emotion-card">
+                    <div class="emotion-date">2025.10.24(금)</div>
+                    <div class="emotion-emoji">😌</div>
+                    <div class="emotion-quote">"평온한 하루"</div>
+                </div>
+                <div class="emotion-card">
+                    <div class="emotion-date">2025.10.23(목)</div>
+                    <div class="emotion-emoji">😅</div>
+                    <div class="emotion-quote">"또 실수했네"</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 닫기 버튼
+        function closeAnalysis() {
+            if (confirm('일기 분석 결과를 닫으시겠습니까?')) {
+                window.history.back();
+            }
+        }
+
+        // 감정 카드 클릭 이벤트
+        document.querySelectorAll('.emotion-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const date = this.querySelector('.emotion-date').textContent;
+                const quote = this.querySelector('.emotion-quote').textContent;
+                alert(`${date}\n${quote}`);
+            });
+        });
+
+        // ESC 키로 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAnalysis();
+            }
+        });
+
+        // 터치 스와이프 지원 (감정 카드)
+        let startX = 0;
+        let isScrolling = false;
+
+        document.querySelector('.emotion-cards').addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            isScrolling = true;
+        });
+
+        document.querySelector('.emotion-cards').addEventListener('touchmove', function(e) {
+            if (!isScrolling) return;
+            e.preventDefault();
+        });
+
+        document.querySelector('.emotion-cards').addEventListener('touchend', function(e) {
+            if (!isScrolling) return;
+            
+            const endX = e.changedTouches[0].clientX;
+            const diffX = startX - endX;
+            
+            if (Math.abs(diffX) > 50) {
+                const container = this;
+                const scrollAmount = 200;
+                
+                if (diffX > 0) {
+                    // 왼쪽으로 스와이프 (다음 카드들)
+                    container.scrollBy({
+                        left: scrollAmount,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    // 오른쪽으로 스와이프 (이전 카드들)
+                    container.scrollBy({
+                        left: -scrollAmount,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+            
+            isScrolling = false;
+        });
+    </script>
 </body>
 </html>

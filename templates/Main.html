@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plot!Me</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .header {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8B5CF6;
+        }
+
+        .date-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .date-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            color: #666666;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .date-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .current-date {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000000;
+            text-decoration: underline;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 0 20px 100px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-card {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            background-color: #f8f6ff;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .content-placeholder {
+            color: #999999;
+            font-size: 16px;
+        }
+
+        .floating-action-btn {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #8B5CF6;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .floating-action-btn:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+        }
+
+        .bottom-navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 20px 0;
+            z-index: 5;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .nav-item.active {
+            color: #8B5CF6;
+        }
+
+        .nav-item:not(.active) {
+            color: #999999;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 16px;
+                gap: 16px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+            
+            .main-content {
+                padding: 0 16px 100px 16px;
+            }
+            
+            .content-card {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">Plot!Me</h1>
+        <div class="date-navigation">
+            <button class="date-btn" onclick="changeDate(-1)">‹</button>
+            <span class="current-date" id="currentDate"></span> <button class="date-btn" onclick="changeDate(1)">›</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-card">
+            <div class="content-placeholder">내용을 추가해보세요</div>
+        </div>
+    </div>
+
+    <button class="floating-action-btn" onclick="addContent()">+</button>
+
+    <div class="bottom-navigation">
+        <div class="nav-item active" onclick="setActiveTab(this)">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">홈</div>
+        </div>
+        <div class="nav-item" onclick="setActiveTab(this)">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">마이</div>
+        </div>
+        <div class="nav-item" onclick="setActiveTab(this)">
+            <div class="nav-icon">❤️</div>
+            <div class="nav-label">카테고리</div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * @function changeDate
+         * 날짜를 변경하고 화면에 표시합니다.
+         * @param {number} direction - -1은 이전 날짜, 1은 다음 날짜를 의미합니다.
+         */
+        function changeDate(direction) {
+            const currentDateElement = document.getElementById('currentDate');
+            const currentDateText = currentDateElement.textContent; // 현재 화면에 표시된 날짜 (예: "2023년 10월 27일")
+            
+            // 1. 현재 텍스트에서 숫자만 추출하여 Date 객체로 변환
+            const match = currentDateText.match(/(\d+)년\s*(\d+)월\s*(\d+)일/);
+            
+            if (!match) {
+                console.error("날짜 형식이 올바르지 않아 날짜를 변경할 수 없습니다.");
+                return;
+            }
+
+            // match[1]: 년, match[2]: 월, match[3]: 일
+            const year = parseInt(match[1]);
+            // JavaScript Date 객체의 월은 0부터 시작하므로 -1 해줍니다.
+            const month = parseInt(match[2]) - 1; 
+            const day = parseInt(match[3]);
+
+            let newDate = new Date(year, month, day);
+
+            // 2. 날짜 변경 (direction 값을 더하여 하루 이동)
+            newDate.setDate(newDate.getDate() + direction);
+            
+            // 3. 변경된 날짜를 새로운 포맷으로 화면에 표시
+            const newYear = newDate.getFullYear();
+            const newMonth = newDate.getMonth() + 1; // 다시 +1하여 실제 월로 표시
+            const newDay = newDate.getDate();
+            
+            currentDateElement.textContent = `${newYear}년 ${newMonth}월 ${newDay}일`;
+        }
+
+        // 플로팅 액션 버튼 (diary.html로 이동)
+        function addContent() {
+            window.location.href = 'diary.html';
+        }
+
+        // 탭 활성화 (기존 코드 유지)
+        function setActiveTab(clickedTab) {
+            document.querySelectorAll('.nav-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            clickedTab.classList.add('active');
+            
+            const tabText = clickedTab.querySelector('.nav-label').textContent;
+            if (tabText === '마이') {
+                alert('마이 페이지로 이동합니다.');
+            } else if (tabText === '카테고리') {
+                alert('카테고리 페이지로 이동합니다.');
+            }
+        }
+
+        // 초기화 (페이지 로드 시 오늘 날짜 설정)
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth() + 1;
+            const day = today.getDate();
+            
+            document.getElementById('currentDate').textContent = `${year}년 ${month}월 ${day}일`;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>앨범 (Album) - Dynamic Date</title>
+    <style>
+        /* CSS Styling */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f0f0; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 400px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .close-button {
+            font-size: 30px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .review-button {
+            padding: 10px 20px;
+            background-color: #e0e0ff; 
+            color: #4a4a9f; 
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .date-navigation {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            max-width: 400px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .nav-arrow {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            padding: 0 15px;
+            font-weight: 200;
+            user-select: none; /* 텍스트 선택 방지 */
+        }
+
+        .current-date {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            min-width: 100px; 
+            text-align: center;
+        }
+
+        .memory-card {
+            width: 100%;
+            max-width: 350px; 
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 10px;
+        }
+
+        .card-content {
+            background-color: #a0c4ff; /* Light blue */
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            text-align: center;
+            padding: 40px 20px;
+            min-height: 400px; 
+        }
+
+        .card-date-info {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .rocket-image {
+            width: 150px; 
+            height: 150px;
+            font-size: 120px;
+            margin-bottom: 40px;
+        }
+
+        .card-phrase {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            padding: 0 10px;
+            line-height: 1.5;
+        }
+
+        .edit-section {
+            width: 100%;
+            max-width: 350px;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .edit-button {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            color: #7d7d7d;
+            cursor: pointer;
+        }
+
+        .edit-icon {
+            margin-left: 5px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>앨범</h1>
+        <span class="close-button" onclick="alert('닫기 기능')">×</span>
+    </div>
+
+    <button class="review-button" onclick="alert('내 추억 돌아보기 기능')">내 추억 돌아보기</button>
+
+    <div class="date-navigation">
+        <span class="nav-arrow" id="prev-date-btn" onclick="changeDate(-1)">&#9664;</span>
+        <span class="current-date" id="display-date"></span>
+        <span class="nav-arrow" id="next-date-btn" onclick="changeDate(1)">&#9654;</span>
+    </div>
+
+    <div class="memory-card">
+        <div class="card-content">
+            <span class="card-date-info" id="card-display-date"></span>
+            <div class="rocket-image">🚀</div>
+            <p class="card-phrase">"성장의 색을 찾은 하루"</p>
+        </div>
+    </div>
+
+    <div class="edit-section">
+        <div class="edit-button" onclick="alert('편집 기능')">
+            edit
+            <span class="edit-icon">✎</span>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for Dynamic Date Control
+
+        // 1. 현재 표시되는 날짜를 관리할 Date 객체를 생성합니다.
+        // 초기값은 이미지에 있던 날짜인 2025년 4월 20일로 설정합니다. (월은 0부터 시작하므로 4월은 3)
+        let currentDate = new Date(2025, 3, 20); 
+        
+        // 2. DOM 요소들을 가져옵니다.
+        const displayDateElement = document.getElementById('display-date');
+        const cardDisplayDateElement = document.getElementById('card-display-date');
+
+        // 요일 배열 (한국어)
+        const days = ['(일)', '(월)', '(화)', '(수)', '(목)', '(금)', '(토)'];
+
+        /**
+         * 날짜를 포맷하여 화면에 표시하는 함수
+         * 예: 2025.4.20 / 2025.4.20(일)
+         */
+        function updateDateDisplay() {
+            // 연, 월(1부터), 일
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1; 
+            const day = currentDate.getDate();
+            // 요일 (0=일요일, 6=토요일)
+            const dayOfWeek = days[currentDate.getDay()]; 
+
+            // 상단 날짜 포맷: 2025.4.20
+            const mainDate = `${year}.${month}.${day}`;
+            // 카드 내부 날짜 포맷: 2025.4.20(일)
+            const cardDate = `${mainDate}${dayOfWeek}`;
+
+            // 화면 업데이트
+            displayDateElement.textContent = mainDate;
+            cardDisplayDateElement.textContent = cardDate;
+        }
+
+        /**
+         * 날짜를 이전/다음으로 변경하는 함수
+         * @param {number} direction - -1 (이전 날짜) 또는 1 (다음 날짜)
+         */
+        function changeDate(direction) {
+            // 현재 날짜의 '일'에 direction (1 또는 -1)을 더합니다.
+            // setDate()는 자동으로 월과 연도를 조정해 줍니다.
+            currentDate.setDate(currentDate.getDate() + direction);
+            
+            // 변경된 날짜를 화면에 반영합니다.
+            updateDateDisplay();
+            
+            // (선택 사항: 날짜가 변경되었음을 알리는 메시지)
+            // console.log("날짜 변경됨:", currentDate.toLocaleDateString('ko-KR'));
+        }
+        
+        // 3. 페이지 로드 시 초기 날짜를 설정하고 화면에 표시합니다.
+        updateDateDisplay();
+
+    </script>
+
+</body>
+</html>

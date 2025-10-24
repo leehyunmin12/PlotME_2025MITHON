@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>카드</title>
+   <style>
+      * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
+      }
+
+      body {
+         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         background-color: #ffffff;
+         min-height: 100vh;
+         display: flex;
+         flex-direction: column;
+      }
+
+      .header {
+         padding: 20px;
+         border-bottom: 1px solid #f0f0f0;
+      }
+
+      .title {
+         font-size: 24px;
+         font-weight: bold;
+         color: #8B5CF6;
+      }
+
+      .main-content {
+         flex: 1;
+         padding: 20px 0;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         overflow: hidden;
+      }
+
+      .cards-container {
+         display: flex;
+         gap: 16px;
+         padding: 0 20px;
+         overflow-x: auto;
+         scroll-behavior: smooth;
+         scrollbar-width: none;
+         -ms-overflow-style: none;
+      }
+
+      .cards-container::-webkit-scrollbar {
+         display: none;
+      }
+
+      .card {
+         min-width: 280px;
+         height: 400px;
+         border-radius: 20px;
+         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         position: relative;
+         transition: transform 0.3s ease;
+         cursor: pointer;
+      }
+
+      .card:hover {
+         transform: translateY(-4px);
+      }
+
+      .card.active {
+         min-width: 320px;
+         height: 450px;
+         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .card-content {
+         text-align: center;
+         color: #333333;
+         font-size: 16px;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         justify-content: space-between;
+         height: 100%;
+         padding: 30px 20px;
+      }
+
+      .card-date {
+         font-size: 14px;
+         margin-bottom: 20px;
+         font-weight: 500;
+      }
+
+      .card-image {
+         max-width: 80%;
+         max-height: 50%;
+         object-fit: contain;
+         margin-top: auto;
+         margin-bottom: auto;
+      }
+
+      .card-phrase {
+         font-size: 20px;
+         font-weight: bold;
+         margin-top: 20px;
+         text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+      }
+      
+      /* 카드별 배경색 */
+      .card:nth-child(1) { /* Frame 11.png - 베이지 */
+         background-color: #F8E4D5;
+      }
+      .card:nth-child(1).active {
+         background-color: #F9EBE0;
+      }
+
+      .card:nth-child(2) { /* Frame 13.png - 밝은 노랑 */
+         background-color: #FFFCDA;
+      }
+      .card:nth-child(2).active {
+         background-color: #FFFFF0;
+      }
+
+      .card:nth-child(3) { /* Frame 16.png - 하늘색 */
+         background-color: #BDE4EF;
+      }
+      .card:nth-child(3).active {
+         background-color: #C5E9F1;
+      }
+
+      .card:nth-child(4) { /* Frame 19.png - 연한 핑크 */
+         background-color: #FBE5E7;
+      }
+      .card:nth-child(4).active {
+         background-color: #FCF0F1;
+      }
+
+      .card:nth-child(5) { /* Frame 12.png - 연두색 */
+         background-color: #C3E7B8;
+      }
+      .card:nth-child(5).active {
+         background-color: #CFF0C3;
+      }
+
+
+      .scroll-indicators {
+         display: flex;
+         justify-content: center;
+         gap: 8px;
+         margin-top: 20px;
+      }
+
+      .indicator {
+         width: 8px;
+         height: 8px;
+         border-radius: 50%;
+         background-color: #e0e0e0;
+         cursor: pointer;
+         transition: background-color 0.3s ease;
+      }
+
+      .indicator.active {
+         background-color: #8B5CF6;
+      }
+
+      .bottom-navigation {
+         background-color: #ffffff;
+         border-top: 1px solid #e0e0e0;
+         display: flex;
+         justify-content: space-around;
+         padding: 12px 0 20px 0;
+      }
+
+      .nav-item {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         gap: 4px;
+         cursor: pointer;
+         transition: color 0.2s ease;
+      }
+
+      .nav-item.active {
+         color: #8B5CF6;
+      }
+
+      .nav-item:not(.active) {
+         color: #999999;
+      }
+
+      .nav-icon {
+         font-size: 20px;
+         margin-bottom: 2px;
+      }
+
+      .nav-label {
+         font-size: 12px;
+         font-weight: 500;
+      }
+
+      @media (max-width: 480px) {
+         .header {
+            padding: 16px;
+         }
+         
+         .title {
+            font-size: 20px;
+         }
+         
+         .main-content {
+            padding: 16px 0;
+         }
+         
+         .cards-container {
+            padding: 0 16px;
+         }
+         
+         .card {
+            min-width: 240px;
+            height: 350px;
+         }
+         
+         .card.active {
+            min-width: 280px;
+            height: 400px;
+         }
+      }
+   </style>
+</head>
+<body>
+   <div class="header">
+      <h1 class="title">Plot!Me</h1>
+   </div>
+
+   <div class="main-content">
+      <div class="cards-container" id="cardsContainer">
+         <div class="card active" onclick="selectCard(this, 0)">
+            <div class="card-content">
+               <div class="card-date">2025.10.25(토)</div>
+               <img src="Frame 11.png" alt="성장의 색을 찾은 하루" class="card-image">
+               <div class="card-phrase">"성장의 색을 찾은 하루"</div>
+            </div>
+         </div>
+         <div class="card" onclick="selectCard(this, 1)">
+            <div class="card-content">
+               <div class="card-date">2025.10.27(월)</div>
+               <img src="Frame 13.png" alt="완벽하진 않지만" class="card-image">
+               <div class="card-phrase">"완벽하진 않지만"</div>
+            </div>
+         </div>
+         <div class="card" onclick="selectCard(this, 2)">
+            <div class="card-content">
+               <div class="card-date">2025.10.29(수)</div>
+               <img src="Frame 16.png" alt="팀워크" class="card-image">
+               <div class="card-phrase">"팀워크"</div>
+            </div>
+         </div>
+         <div class="card" onclick="selectCard(this, 3)">
+            <div class="card-content">
+               <div class="card-date">2025.10.30(화)</div>
+               <img src="Frame 19.png" alt="첫 시안, 첫 설렘" class="card-image">
+               <div class="card-phrase">"첫 시안, 첫 설렘"</div>
+            </div>
+         </div>
+         <div class="card" onclick="selectCard(this, 4)">
+            <div class="card-content">
+               <div class="card-date">2025.10.26(일)</div>
+               <img src="Frame 12.png" alt="첫 시안, 첫 설렘" class="card-image">
+               <div class="card-phrase">"첫 시안, 첫 설렘"</div>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <div class="scroll-indicators" id="scrollIndicators">
+      <div class="indicator active" onclick="scrollToCard(0)"></div>
+      <div class="indicator" onclick="scrollToCard(1)"></div>
+      <div class="indicator" onclick="scrollToCard(2)"></div>
+      <div class="indicator" onclick="scrollToCard(3)"></div>
+      <div class="indicator" onclick="scrollToCard(4)"></div>
+   </div>
+
+   <div class="bottom-navigation">
+      <div class="nav-item active" onclick="setActiveTab(this)">
+         <div class="nav-icon">🏠</div>
+         <div class="nav-label">홈</div>
+      </div>
+      <div class="nav-item" onclick="setActiveTab(this)">
+         <div class="nav-icon">👤</div>
+         <div class="nav-label">마이</div>
+      </div>
+      <div class="nav-item" onclick="setActiveTab(this)">
+         <div class="nav-icon">❤️</div>
+         <div class="nav-label">카테고리</div>
+      </div>
+   </div>
+
+   <script>
+      let currentCardIndex = 0;
+      const cards = document.querySelectorAll('.card');
+      const indicators = document.querySelectorAll('.indicator');
+
+      // 카드 선택
+      function selectCard(cardElement, index) {
+         // 모든 카드에서 active 클래스 제거
+         cards.forEach(card => card.classList.remove('active'));
+         indicators.forEach(indicator => indicator.classList.remove('active'));
+         
+         // 선택된 카드에 active 클래스 추가
+         cardElement.classList.add('active');
+         indicators[index].classList.add('active');
+         
+         currentCardIndex = index;
+         
+         // 카드로 스크롤
+         scrollToCard(index);
+      }
+
+      // 특정 카드로 스크롤
+      function scrollToCard(index) {
+         const container = document.getElementById('cardsContainer');
+         const card = cards[index];
+         const containerRect = container.getBoundingClientRect();
+         const cardRect = card.getBoundingClientRect();
+         
+         // 카드를 중앙에 오도록 스크롤 위치 계산
+         const scrollLeft = card.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
+         
+         container.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+         });
+         
+         // 모든 카드와 인디케이터에서 active 클래스 제거
+         cards.forEach(card => card.classList.remove('active'));
+         indicators.forEach(indicator => indicator.classList.remove('active'));
+         
+         // 현재 카드와 인디케이터에 active 클래스 추가
+         cards[index].classList.add('active');
+         indicators[index].classList.add('active');
+         
+         currentCardIndex = index;
+      }
+
+      // 탭 활성화
+      function setActiveTab(clickedTab) {
+         // 모든 탭에서 active 클래스 제거
+         document.querySelectorAll('.nav-item').forEach(tab => {
+            tab.classList.remove('active');
+         });
+         
+         // 클릭된 탭에 active 클래스 추가
+         clickedTab.classList.add('active');
+         
+         // 탭별 기능 구현
+         const tabText = clickedTab.querySelector('.nav-label').textContent;
+         if (tabText === '마이') {
+            alert('마이 페이지로 이동합니다.');
+         } else if (tabText === '카테고리') {
+            alert('카테고리 페이지로 이동합니다.');
+         }
+      }
+
+      // 스크롤 이벤트 처리
+      document.getElementById('cardsContainer').addEventListener('scroll', function() {
+         const container = this;
+         const scrollLeft = container.scrollLeft;
+         const containerWidth = container.clientWidth;
+         
+         // 현재 보이는 카드 인덱스 계산
+         let newIndex = 0;
+         let minDistance = Infinity;
+         
+         cards.forEach((card, index) => {
+            const cardLeft = card.offsetLeft;
+            const cardCenter = cardLeft + card.offsetWidth / 2;
+            const containerCenter = scrollLeft + containerWidth / 2;
+            const distance = Math.abs(cardCenter - containerCenter);
+            
+            if (distance < minDistance) {
+               minDistance = distance;
+               newIndex = index;
+            }
+         });
+         
+         if (newIndex !== currentCardIndex) {
+            currentCardIndex = newIndex;
+            
+            // 모든 카드와 인디케이터에서 active 클래스 제거
+            cards.forEach(card => card.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+            
+            // 현재 카드와 인디케이터에 active 클래스 추가
+            cards[currentCardIndex].classList.add('active');
+            indicators[currentCardIndex].classList.add('active');
+         }
+      });
+
+      // 터치 스와이프 지원
+      let startX = 0;
+      let isScrolling = false;
+
+      document.getElementById('cardsContainer').addEventListener('touchstart', function(e) {
+         startX = e.touches[0].clientX;
+         isScrolling = true;
+      });
+
+      document.getElementById('cardsContainer').addEventListener('touchmove', function(e) {
+         if (!isScrolling) return;
+         // 스크롤 동작을 위해 기본 동작 방지 제거
+         // e.preventDefault();
+      });
+
+      document.getElementById('cardsContainer').addEventListener('touchend', function(e) {
+         if (!isScrolling) return;
+         
+         const endX = e.changedTouches[0].clientX;
+         const diffX = startX - endX;
+         
+         // 작은 스와이프는 무시하고, 중앙에 정렬하는 기능은 스크롤 이벤트 리스너가 처리하도록 함
+         
+         isScrolling = false;
+      });
+
+      // 키보드 네비게이션
+      document.addEventListener('keydown', function(e) {
+         if (e.key === 'ArrowLeft') {
+            const prevIndex = Math.max(currentCardIndex - 1, 0);
+            scrollToCard(prevIndex);
+         } else if (e.key === 'ArrowRight') {
+            const nextIndex = Math.min(currentCardIndex + 1, cards.length - 1);
+            scrollToCard(nextIndex);
+         }
+      });
+   </script>
+</body>
+</html>
