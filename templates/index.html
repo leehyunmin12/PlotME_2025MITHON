@@ -126,6 +126,43 @@
             line-height: 1.6;
         }
 
+        .growth-section {
+            background-color: #F0FDF4;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .growth-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #16A34A;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .growth-icon {
+            font-size: 20px;
+        }
+
+        .growth-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .growth-item {
+            background-color: #ffffff;
+            border-left: 3px solid #22C55E;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333333;
+            line-height: 1.5;
+        }
+
         .emotion-section {
             display: flex;
             flex-direction: column;
@@ -201,6 +238,7 @@
             text-align: center;
             font-style: italic;
         }
+        
         .exit-btn {
             text-decoration: none;
         }
@@ -222,12 +260,15 @@
             .summary-section {
                 padding: 16px;
             }
+
+            .growth-section {
+                padding: 16px;
+            }
             
             .emotion-card {
                 min-width: 180px;
                 height: 140px;
             }
-            
         }
     </style>
 </head>
@@ -246,14 +287,15 @@
             <div class="grade-circle">C</div>
         </div>
 
-        <div class="summary-section">
-            <div class="summary-title">사연 요약</div>
-            <div class="summary-date">2025.10.25 (토)</div>
-            <div class="summary-content">
-                처음엔 걱정됐는데 막상 하니까 재밌었다.<br>
-                피드백을 받고 색도 다시 찾아 보면서 더 좋아졌고,<br>
-                이런 경험을 통해 완벽하진 않아도<br>
-                내가 성장하고 있다고 느꼈다.
+
+
+        <div class="growth-section">
+            <div class="growth-title">
+                <span class="growth-icon">📈</span>
+                성장 카드 생성!
+            </div>
+            <div class="growth-items" id="growthItems">
+                <!-- 동적으로 생성됨 -->
             </div>
         </div>
 
@@ -290,6 +332,71 @@
     </div>
 
     <script>
+        // 일기 데이터 (실제로는 서버에서 받아올 데이터)
+        const diaryData = {
+            today: {
+                date: "2025.10.25",
+                content: "오늘은 아침부터 유난히 공기가 선선했다. 창문을 열자마자 차가운 바람이 살짝 얼굴을 스쳤고, 그 바람 속에 섞인 가을 냄새가 참 좋았다. 요즘은 해가 늦게 뜨고 금방 지는 탓에 하루가 짧게 느껴진다. 그런 계절이라 그런지 괜히 마음이 조용해지는 것 같다. 점심쯤엔 카페에 가서 혼자 책을 읽었다. 창가 자리에서 햇빛이 따뜻하게 비쳐서 기분이 좋았고, 커피 향이 잔잔하게 퍼지면서 마음이 한결 여유로워졌다. 책 속 문장 하나하나가 이상하게 더 마음에 와닿는 날이었다. 집에 돌아오는 길엔 단풍이 예쁘게 물든 나무들이 눈에 띄었다. 빨강, 주황, 노랑이 섞여서 마치 그림 같았다. 괜히 발걸음을 늦추고 한참을 바라봤다. 이런 순간들이 아마도 '행복'이라는 단어에 가장 가까운 게 아닐까 싶었다. 오늘 하루는 특별한 일은 없었지만, 조용히 나 자신을 돌아보고 마음을 쉬게 한 하루였다. 이런 평범한 날들이 오히려 오래 기억에 남을지도 모르겠다.",
+                emotion: "평온함"
+            },
+            yesterday: {
+                date: "2025.10.24",
+                content: "오늘 새로운 프로젝트를 시작했다. 처음엔 어려워 보였지만 차근차근 해보려고 노력했다. 아직 부족한 부분이 많지만 계속 해봐야겠다.",
+                emotion: "중립"
+            }
+        };
+
+        // 성장 포인트 분석 함수
+        function analyzeGrowth() {
+            const today = diaryData.today.content;
+            const yesterday = diaryData.yesterday.content;
+
+            // 긍정적 감정 키워드
+            const positiveKeywords = ["좋았다", "여유", "행복", "따뜻하", "평온", "기분이 좋"];
+            const mindfulKeywords = ["돌아보", "마음을 쉬", "성찰", "바라봤", "여유"];
+            const yesterdayStruggleKeywords = ["어려워", "부족"];
+
+            let analysis = "";
+
+            // 1. 감정 상태 개선 감지
+            const hasPositiveEmotions = positiveKeywords.some(keyword => today.includes(keyword));
+            const hadStruggle = yesterdayStruggleKeywords.some(keyword => yesterday.includes(keyword));
+
+            if (hasPositiveEmotions && hadStruggle) {
+                analysis += "어제는 새로운 프로젝트로 어려움을 느꼈지만, 오늘은 그런 불안감에서 벗어나 마음의 여유를 찾았어요. ";
+            }
+
+            // 2. 자기 돌봄과 마음챙김
+            const hasMindfulness = mindfulKeywords.some(keyword => today.includes(keyword));
+            if (hasMindfulness) {
+                analysis += "바쁜 일상 속에서도 자신의 마음과 감정에 집중하고, 작은 순간들을 소중히 여기는 자기 돌봄이 늘었어요. ";
+            }
+
+            // 3. 감사와 긍정적 사고
+            if (today.includes("행복") && today.includes("평범한")) {
+                analysis += "특별한 일이 없어도 그 순간을 즐기고 감사할 줄 아는 마음이 생겼어요. ";
+            }
+
+            // 4. 미적 감수성 증가
+            if (today.includes("단풍") && today.includes("그림") && today.includes("발걸음을 늦추")) {
+                analysis += "주변의 아름다움을 더 세심하게 느끼고 그 순간을 음미하려는 태도가 성숙해졌어요. ";
+            }
+
+            if (analysis === "") {
+                analysis = "매일 다른 경험을 하면서 천천히 성장하고 있어요. 오늘 같은 평온한 하루도 당신의 마음을 더 풍요롭게 만드는 자산이 될 거예요.";
+            }
+
+            return analysis;
+        }
+
+        // 성장 포인트 렌더링
+        function renderGrowthPoints() {
+            const growthAnalysis = analyzeGrowth();
+            const growthContainer = document.getElementById('growthItems');
+            
+            growthContainer.innerHTML = `<div class="growth-item">${growthAnalysis}</div>`;
+        }
+
         // 닫기 버튼
         function closeAnalysis() {
             if (confirm('일기 분석 결과를 닫으시겠습니까?')) {
@@ -338,13 +445,11 @@
                 const scrollAmount = 200;
                 
                 if (diffX > 0) {
-                    // 왼쪽으로 스와이프 (다음 카드들)
                     container.scrollBy({
                         left: scrollAmount,
                         behavior: 'smooth'
                     });
                 } else {
-                    // 오른쪽으로 스와이프 (이전 카드들)
                     container.scrollBy({
                         left: -scrollAmount,
                         behavior: 'smooth'
@@ -354,6 +459,9 @@
             
             isScrolling = false;
         });
+
+        // 페이지 로드 시 성장 포인트 렌더링
+        document.addEventListener('DOMContentLoaded', renderGrowthPoints);
     </script>
 </body>
 </html>
